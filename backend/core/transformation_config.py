@@ -21,29 +21,105 @@ ROTATION_ANGLE_MAX = 180
 ROTATION_ANGLE_DEFAULT = 0
 ROTATION_ANGLE_STEP = 0.1
 
-# Brightness parameters
-BRIGHTNESS_MIN = 0.5
-BRIGHTNESS_MAX = 1.5
-BRIGHTNESS_DEFAULT = 1.0
-BRIGHTNESS_STEP = 0.01
+# Brightness parameters (UPDATED: Factor → Percentage for better UX)
+# OLD: factor (0.5-1.5) → NEW: percentage (-50% to +50%)
+BRIGHTNESS_MIN = -50  # -50% (darker)
+BRIGHTNESS_MAX = 50   # +50% (brighter)
+BRIGHTNESS_DEFAULT = 0  # 0% (no change)
+BRIGHTNESS_STEP = 1
+BRIGHTNESS_UNIT = "percent"
+BRIGHTNESS_DESCRIPTION = "Brightness adjustment (-50% darker to +50% brighter)"
 
-# Contrast parameters
-CONTRAST_MIN = 0.5
-CONTRAST_MAX = 1.5
-CONTRAST_DEFAULT = 1.0
-CONTRAST_STEP = 0.01
+# Conversion function: percentage → factor
+def brightness_percentage_to_factor(percentage):
+    """Convert brightness percentage (-50 to +50) to factor (0.5 to 1.5)"""
+    return 1.0 + (percentage / 100.0)
 
-# Blur parameters
+# Contrast parameters (UPDATED: Factor → Percentage for better UX)
+# OLD: factor (0.5-1.5) → NEW: percentage (-50% to +50%)
+CONTRAST_MIN = -50  # -50% (less contrast)
+CONTRAST_MAX = 50   # +50% (more contrast)
+CONTRAST_DEFAULT = 0  # 0% (no change)
+CONTRAST_STEP = 1
+CONTRAST_UNIT = "percent"
+CONTRAST_DESCRIPTION = "Contrast adjustment (-50% less to +50% more contrast)"
+
+# Conversion function: percentage → factor
+def contrast_percentage_to_factor(percentage):
+    """Convert contrast percentage (-50 to +50) to factor (0.5 to 1.5)"""
+    return 1.0 + (percentage / 100.0)
+
+# Blur parameters (ENHANCED: Added unit display)
 BLUR_RADIUS_MIN = 0.5
 BLUR_RADIUS_MAX = 20.0
 BLUR_RADIUS_DEFAULT = 2.0
 BLUR_RADIUS_STEP = 0.1
+BLUR_UNIT = "pixels"
+BLUR_DESCRIPTION = "Blur radius in pixels"
 
-# Hue parameters
+# Hue parameters (ENHANCED: Added unit display)
 HUE_SHIFT_MIN = -30
 HUE_SHIFT_MAX = 30
 HUE_SHIFT_DEFAULT = 0
 HUE_SHIFT_STEP = 0.1
+HUE_UNIT = "degrees"
+HUE_DESCRIPTION = "Hue shift in degrees"
+
+# Noise parameters (UPDATED: Intensity → Percentage for better UX)
+# OLD: intensity (0.001-0.1) → NEW: strength (1-50%)
+NOISE_STRENGTH_MIN = 1    # 1% (subtle)
+NOISE_STRENGTH_MAX = 50   # 50% (heavy)
+NOISE_STRENGTH_DEFAULT = 5  # 5% (moderate)
+NOISE_STRENGTH_STEP = 1
+NOISE_UNIT = "percent"
+NOISE_DESCRIPTION = "Noise strength (1% subtle to 50% heavy)"
+
+# Conversion function: percentage → intensity
+def noise_strength_to_intensity(strength):
+    """Convert noise strength percentage (1-50) to intensity (0.001-0.05)"""
+    return strength / 1000.0
+
+# Crop parameters (UPDATED: Scale → Percentage for better UX)
+# OLD: scale (0.8-1.0) → NEW: crop_percentage (50-100%)
+CROP_PERCENTAGE_MIN = 50    # 50% (heavy crop)
+CROP_PERCENTAGE_MAX = 100   # 100% (no crop)
+CROP_PERCENTAGE_DEFAULT = 100  # 100% (no crop)
+CROP_PERCENTAGE_STEP = 1
+CROP_UNIT = "percent"
+CROP_DESCRIPTION = "Crop to percentage of original size"
+
+# Color Jitter parameters (UPDATED: Multiple factors → Separate controls with clear units)
+# Hue shift
+COLOR_JITTER_HUE_MIN = -30    # -30° (shift left)
+COLOR_JITTER_HUE_MAX = 30     # +30° (shift right)
+COLOR_JITTER_HUE_DEFAULT = 0  # 0° (no change)
+COLOR_JITTER_HUE_STEP = 1
+COLOR_JITTER_HUE_UNIT = "degrees"
+COLOR_JITTER_HUE_DESCRIPTION = "Hue shift in degrees (-30° to +30°)"
+
+# Brightness variation
+COLOR_JITTER_BRIGHTNESS_MIN = -20    # -20% (darker)
+COLOR_JITTER_BRIGHTNESS_MAX = 20     # +20% (brighter)
+COLOR_JITTER_BRIGHTNESS_DEFAULT = 0  # 0% (no change)
+COLOR_JITTER_BRIGHTNESS_STEP = 1
+COLOR_JITTER_BRIGHTNESS_UNIT = "percent"
+COLOR_JITTER_BRIGHTNESS_DESCRIPTION = "Brightness variation (-20% to +20%)"
+
+# Contrast variation
+COLOR_JITTER_CONTRAST_MIN = -20    # -20% (less contrast)
+COLOR_JITTER_CONTRAST_MAX = 20     # +20% (more contrast)
+COLOR_JITTER_CONTRAST_DEFAULT = 0  # 0% (no change)
+COLOR_JITTER_CONTRAST_STEP = 1
+COLOR_JITTER_CONTRAST_UNIT = "percent"
+COLOR_JITTER_CONTRAST_DESCRIPTION = "Contrast variation (-20% to +20%)"
+
+# Saturation variation
+COLOR_JITTER_SATURATION_MIN = -20    # -20% (less saturated)
+COLOR_JITTER_SATURATION_MAX = 20     # +20% (more saturated)
+COLOR_JITTER_SATURATION_DEFAULT = 0  # 0% (no change)
+COLOR_JITTER_SATURATION_STEP = 1
+COLOR_JITTER_SATURATION_UNIT = "percent"
+COLOR_JITTER_SATURATION_DESCRIPTION = "Saturation variation (-20% to +20%)"
 
 # Saturation parameters
 SATURATION_MIN = 0.5

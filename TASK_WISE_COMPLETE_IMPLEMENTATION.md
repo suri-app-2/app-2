@@ -16,7 +16,7 @@ Complete task-by-task implementation from dual-value system to ZIP creation and 
 | **Task 1** | ✅ **Complete** | Fix Dependencies and Backend Startup |
 | **Task 2** | ✅ **Complete** | Update Database Schema for Dual-Value System |
 | **Task 3** | ✅ **Complete** (🎯 **All Bugs Fixed**) | Implement Dual-Value Auto-Generation Logic |
-| **Task 3.5** | ❌ **Pending** | Fix Transformation Parameter Units (Critical UX) |
+| **Task 3.5** | 🔄 **In Progress** | Fix Transformation Parameter Units (Critical UX) |
 | **Task 4** | ❌ **Pending** | Update Image Processing Pipeline |
 | **Task 5** | ❌ **Pending** | Fix Export System Integration |
 | **Task 6** | ❌ **Pending** | Update Frontend UI for Dual-Value System |
@@ -262,7 +262,22 @@ Transform confusing parameter units into user-friendly, professional values that
 **Before:** Users confused by `brightness: 1.25`, `noise: 0.015`  
 **After:** Users understand `brightness: +25%`, `noise: 15%`
 
-**TASK 3.5 STATUS: ❌ PENDING - Ready for implementation**
+**TASK 3.5 STATUS: 🔄 IN PROGRESS - Phase 1 Critical Fixes Started**
+
+### **Implementation Progress:**
+**Branch:** `task-3.5-parameter-units-fix`  
+**Current Phase:** Phase 1 - Critical Fixes (5 tools)  
+**Started:** 2025-08-05
+
+#### **Phase 1 Progress: ✅ COMPLETED**
+1. ✅ **Brightness Tool**: `factor (0.5-1.5)` → `percentage (-50% to +50%)`
+2. ✅ **Contrast Tool**: `factor (0.5-1.5)` → `percentage (-50% to +50%)`
+3. ✅ **Noise Tool**: `intensity (0.001-0.1)` → `strength (1-50%)`
+4. ✅ **Color Jitter Tool**: Multiple factors → 4 separate controls with clear units
+5. ✅ **Crop Tool**: `scale (0.8-1.0)` → `crop_percentage (50-100%)`
+
+**Files Updated:**
+- ✅ `/backend/core/transformation_config.py` - Added all Phase 1 parameter definitions with conversion functions
 
 ### **Files modified:**
 - ✅ `/backend/core/transformation_config.py` - Added dual-value tool definitions and auto-generation logic
