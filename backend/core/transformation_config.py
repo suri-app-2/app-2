@@ -9,17 +9,21 @@ All components should import parameters from this file to ensure consistency.
 # TRANSFORMATION PARAMETERS - SINGLE SOURCE OF TRUTH
 # =====================================================================
 
-# Shear transformation parameters
+# Shear transformation parameters (ENHANCED: Added unit display)
 SHEAR_ANGLE_MIN = -30
 SHEAR_ANGLE_MAX = 30
 SHEAR_ANGLE_DEFAULT = 0
 SHEAR_ANGLE_STEP = 0.1
+SHEAR_UNIT = "degrees"
+SHEAR_DESCRIPTION = "Shear angle in degrees"
 
-# Rotation parameters
+# Rotation parameters (ENHANCED: Added unit display)
 ROTATION_ANGLE_MIN = -180
 ROTATION_ANGLE_MAX = 180
 ROTATION_ANGLE_DEFAULT = 0
 ROTATION_ANGLE_STEP = 0.1
+ROTATION_UNIT = "degrees"
+ROTATION_DESCRIPTION = "Rotation angle in degrees"
 
 # Brightness parameters (UPDATED: Factor → Percentage for better UX)
 # OLD: factor (0.5-1.5) → NEW: percentage (-50% to +50%)
@@ -121,25 +125,94 @@ COLOR_JITTER_SATURATION_STEP = 1
 COLOR_JITTER_SATURATION_UNIT = "percent"
 COLOR_JITTER_SATURATION_DESCRIPTION = "Saturation variation (-20% to +20%)"
 
-# Saturation parameters
+# =====================================================================
+# PHASE 2: MODERATE FIXES - Enhanced parameter definitions
+# =====================================================================
+
+# Random Zoom parameters (ENHANCED: Added clear unit display)
+RANDOM_ZOOM_FACTOR_MIN = 0.5    # 0.5× (zoom out)
+RANDOM_ZOOM_FACTOR_MAX = 2.0    # 2.0× (zoom in)
+RANDOM_ZOOM_FACTOR_DEFAULT = 1.0  # 1.0× (original size)
+RANDOM_ZOOM_FACTOR_STEP = 0.1
+RANDOM_ZOOM_UNIT = "ratio"
+RANDOM_ZOOM_DESCRIPTION = "Zoom factor (1.0 = original size)"
+
+# Affine Transform parameters (ENHANCED: Added clear units for all 4 parameters)
+# Scale factor
+AFFINE_SCALE_MIN = 0.8    # 0.8× (smaller)
+AFFINE_SCALE_MAX = 1.2    # 1.2× (larger)
+AFFINE_SCALE_DEFAULT = 1.0  # 1.0× (original size)
+AFFINE_SCALE_STEP = 0.01
+AFFINE_SCALE_UNIT = "ratio"
+AFFINE_SCALE_DESCRIPTION = "Scale factor (0.8× smaller to 1.2× larger)"
+
+# Rotation angle
+AFFINE_ROTATION_MIN = -15    # -15° (counter-clockwise)
+AFFINE_ROTATION_MAX = 15     # +15° (clockwise)
+AFFINE_ROTATION_DEFAULT = 0  # 0° (no rotation)
+AFFINE_ROTATION_STEP = 0.1
+AFFINE_ROTATION_UNIT = "degrees"
+AFFINE_ROTATION_DESCRIPTION = "Rotation angle in degrees"
+
+# Horizontal shift
+AFFINE_HORIZONTAL_SHIFT_MIN = -20    # -20% (left)
+AFFINE_HORIZONTAL_SHIFT_MAX = 20     # +20% (right)
+AFFINE_HORIZONTAL_SHIFT_DEFAULT = 0  # 0% (no shift)
+AFFINE_HORIZONTAL_SHIFT_STEP = 1
+AFFINE_HORIZONTAL_SHIFT_UNIT = "percent"
+AFFINE_HORIZONTAL_SHIFT_DESCRIPTION = "Horizontal shift (-20% left to +20% right)"
+
+# Vertical shift
+AFFINE_VERTICAL_SHIFT_MIN = -20    # -20% (up)
+AFFINE_VERTICAL_SHIFT_MAX = 20     # +20% (down)
+AFFINE_VERTICAL_SHIFT_DEFAULT = 0  # 0% (no shift)
+AFFINE_VERTICAL_SHIFT_STEP = 1
+AFFINE_VERTICAL_SHIFT_UNIT = "percent"
+AFFINE_VERTICAL_SHIFT_DESCRIPTION = "Vertical shift (-20% up to +20% down)"
+
+# Perspective Warp parameters (UPDATED: Changed to percentage strength)
+PERSPECTIVE_DISTORTION_MIN = 0     # 0% (no distortion)
+PERSPECTIVE_DISTORTION_MAX = 30    # 30% (heavy distortion)
+PERSPECTIVE_DISTORTION_DEFAULT = 10  # 10% (moderate distortion)
+PERSPECTIVE_DISTORTION_STEP = 1
+PERSPECTIVE_DISTORTION_UNIT = "percent"
+PERSPECTIVE_DISTORTION_DESCRIPTION = "Perspective distortion strength (0% none to 30% heavy)"
+
+# Saturation parameters (ENHANCED: Added unit display)
 SATURATION_MIN = 0.5
 SATURATION_MAX = 1.5
 SATURATION_DEFAULT = 1.0
 SATURATION_STEP = 0.01
+SATURATION_UNIT = "factor"
+SATURATION_DESCRIPTION = "Saturation factor (0.5 = half, 1.0 = normal, 1.5 = enhanced)"
 
-# Gamma parameters
+# Gamma parameters (ENHANCED: Added unit display)
 GAMMA_MIN = 0.5
 GAMMA_MAX = 2.0
 GAMMA_DEFAULT = 1.0
 GAMMA_STEP = 0.01
+GAMMA_UNIT = "gamma"
+GAMMA_DESCRIPTION = "Gamma correction value (1.0 = no change)"
 
-# Resize parameters
+# Resize parameters (ENHANCED: Added unit display)
 RESIZE_WIDTH_MIN = 64
 RESIZE_WIDTH_MAX = 4096
 RESIZE_WIDTH_DEFAULT = 640
 RESIZE_HEIGHT_MIN = 64
 RESIZE_HEIGHT_MAX = 4096
 RESIZE_HEIGHT_DEFAULT = 640
+RESIZE_UNIT = "pixels"
+RESIZE_DESCRIPTION = "Image dimensions in pixels"
+
+# =====================================================================
+# PHASE 3: UI ENHANCEMENT - Complete unit system
+# =====================================================================
+
+# All parameters now have:
+# - Clear units (pixels, percent, degrees, ratio, factor, gamma)
+# - Descriptive names and helpful descriptions
+# - Consistent step values for smooth UI interaction
+# - Professional parameter presentation
 
 # =====================================================================
 # TRANSFORMATION CATEGORIES
