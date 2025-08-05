@@ -47,28 +47,42 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
     fetchClassCount();
   }, [selectedDatasets]);
 
-  // Fetch combination count for current release version
+  // Fetch combination count and user selection for current release version
   useEffect(() => {
-    const fetchCombinationCount = async () => {
+    const fetchReleaseConfig = async () => {
       if (!currentReleaseVersion) return;
       
       try {
-        const response = await fetch('http://localhost:12000/api/v1/releases/versions?status=PENDING');
+        const response = await fetch(`http://localhost:12000/api/v1/release-config/${currentReleaseVersion}`);
         const data = await response.json();
         
-        if (data.success && data.versions) {
-          const versionData = data.versions.find(v => v.version === currentReleaseVersion);
-          if (versionData && versionData.max_combinations) {
-            setMaxCombinations(versionData.max_combinations);
-            console.log(`Set max combinations for ${currentReleaseVersion}: ${versionData.max_combinations}`);
+        if (data.success) {
+          setMaxCombinations(data.max_limit);
+          // Set current user selection in form if it exists
+          if (data.current_user_selection) {
+            form.setFieldsValue({ multiplier: data.current_user_selection });
           }
+          console.log(`Release config for ${currentReleaseVersion}: max=${data.max_limit}, current=${data.current_user_selection}`);
         }
       } catch (error) {
-        console.error('Failed to fetch combination count:', error);
+        console.error('Failed to fetch release config:', error);
+        // Fallback to old API if new one fails
+        try {
+          const response = await fetch('http://localhost:12000/api/v1/releases/versions?status=PENDING');
+          const data = await response.json();
+          if (data.success && data.versions) {
+            const versionData = data.versions.find(v => v.version === currentReleaseVersion);
+            if (versionData && versionData.max_combinations) {
+              setMaxCombinations(versionData.max_combinations);
+            }
+          }
+        } catch (fallbackError) {
+          console.error('Fallback API also failed:', fallbackError);
+        }
       }
     };
 
-    fetchCombinationCount();
+    fetchReleaseConfig();
   }, [currentReleaseVersion]);
 
   // Load existing release version when component mounts
@@ -145,6 +159,54 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
       const newName = e.target.value.trim();
       handleReleaseNameChange(newName);
     }
+  };
+
+  // Handle immediate update of images per original
+  const handleImagesPerOriginalUpdate = async (value) => {
+    if (!currentReleaseVersion || !value || value < 1 || value > maxCombinations) {
+      return;
+    }
+
+    try {
+      console.log(`Updating images per original for "${currentReleaseVersion}" to ${value}`);
+      
+      const response = await fetch('http://localhost:12000/api/v1/update-user-selected-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          release_version: currentReleaseVersion,
+          user_selected_images: value
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        message.success(`Images per Original updated to ${value}`);
+        console.log('Images per original update result:', result);
+      } else {
+        throw new Error(result.message || 'Update failed');
+      }
+    } catch (error) {
+      console.error('Failed to update images per original:', error);
+      message.error('Failed to update Images per Original');
+    }
+  };
+
+  // Handle Enter key press in images per original field
+  const handleImagesPerOriginalKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      const value = parseInt(e.target.value);
+      handleImagesPerOriginalUpdate(value);
+    }
+  };
+
+  // Handle blur event (when user clicks away from field)
+  const handleImagesPerOriginalBlur = (e) => {
+    const value = parseInt(e.target.value);
+    handleImagesPerOriginalUpdate(value);
   };
 
   const handlePreview = async () => {
@@ -279,6 +341,8 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
                 max={maxCombinations} 
                 style={{ width: '100%' }}
                 placeholder="Enter number"
+                onPressEnter={handleImagesPerOriginalKeyPress}
+                onBlur={handleImagesPerOriginalBlur}
               />
             </Form.Item>
           </Col>
