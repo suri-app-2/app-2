@@ -68,16 +68,16 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
         const data = await response.json();
         console.log('📊 Response data:', data);
         
-        if (data.success) {
-          console.log('✅ Setting maxCombinations to:', data.max_limit);
-          setMaxCombinations(data.max_limit);
+        if (data.max_images_per_original) {
+          console.log('✅ Setting maxCombinations to:', data.max_images_per_original);
+          setMaxCombinations(data.max_images_per_original);
           // Set current user selection in form if it exists
-          if (data.current_user_selection) {
-            form.setFieldsValue({ multiplier: data.current_user_selection });
+          if (data.user_selected_images_per_original) {
+            form.setFieldsValue({ multiplier: data.user_selected_images_per_original });
           }
-          console.log(`✅ Release config for ${currentReleaseVersion}: max=${data.max_limit}, current=${data.current_user_selection}`);
+          console.log(`✅ Release config for ${currentReleaseVersion}: max=${data.max_images_per_original}, current=${data.user_selected_images_per_original}`);
         } else {
-          console.log('❌ API returned success=false:', data);
+          console.log('❌ No max_images_per_original in response:', data);
         }
       } catch (error) {
         console.error('❌ Failed to fetch release config:', error);
@@ -209,7 +209,7 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
       const url = 'http://localhost:12000/api/image-transformations/update-user-selected-images';
       const payload = {
         release_version: currentReleaseVersion,
-        user_selected_images: value
+        user_selected_count: value
       };
       
       console.log('🌐 POST URL:', url);
@@ -227,11 +227,11 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
       const result = await response.json();
       console.log('📊 Response data:', result);
       
-      if (result.success) {
+      if (result.message && result.message.includes('Successfully updated')) {
         message.success(`Images per Original updated to ${value}`);
         console.log('✅ Images per original update successful:', result);
       } else {
-        throw new Error(result.message || 'Update failed');
+        throw new Error(result.detail || result.message || 'Update failed');
       }
     } catch (error) {
       console.error('❌ Failed to update images per original:', error);
