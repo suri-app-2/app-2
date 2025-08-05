@@ -215,6 +215,122 @@ RESIZE_DESCRIPTION = "Image dimensions in pixels"
 # - Professional parameter presentation
 
 # =====================================================================
+# PARAMETER GETTER FUNCTIONS - For image_transformer.py integration
+# =====================================================================
+
+def get_brightness_parameters():
+    """Get brightness parameters for UI"""
+    return {
+        'min': BRIGHTNESS_MIN,
+        'max': BRIGHTNESS_MAX,
+        'default': BRIGHTNESS_DEFAULT,
+        'step': BRIGHTNESS_STEP,
+        'unit': BRIGHTNESS_UNIT,
+        'description': BRIGHTNESS_DESCRIPTION
+    }
+
+def get_contrast_parameters():
+    """Get contrast parameters for UI"""
+    return {
+        'min': CONTRAST_MIN,
+        'max': CONTRAST_MAX,
+        'default': CONTRAST_DEFAULT,
+        'step': CONTRAST_STEP,
+        'unit': CONTRAST_UNIT,
+        'description': CONTRAST_DESCRIPTION
+    }
+
+def get_blur_parameters():
+    """Get blur parameters for UI"""
+    return {
+        'min': BLUR_RADIUS_MIN,
+        'max': BLUR_RADIUS_MAX,
+        'default': BLUR_RADIUS_DEFAULT,
+        'step': BLUR_RADIUS_STEP,
+        'unit': BLUR_UNIT,
+        'description': BLUR_DESCRIPTION
+    }
+
+def get_hue_parameters():
+    """Get hue parameters for UI"""
+    return {
+        'min': HUE_SHIFT_MIN,
+        'max': HUE_SHIFT_MAX,
+        'default': HUE_SHIFT_DEFAULT,
+        'step': HUE_SHIFT_STEP,
+        'unit': HUE_UNIT,
+        'description': HUE_DESCRIPTION
+    }
+
+def get_noise_parameters():
+    """Get noise parameters for UI"""
+    return {
+        'min': NOISE_STRENGTH_MIN,
+        'max': NOISE_STRENGTH_MAX,
+        'default': NOISE_STRENGTH_DEFAULT,
+        'step': NOISE_STRENGTH_STEP,
+        'unit': NOISE_UNIT,
+        'description': NOISE_DESCRIPTION
+    }
+
+def get_shear_parameters():
+    """Get shear parameters for UI"""
+    return {
+        'min': SHEAR_ANGLE_MIN,
+        'max': SHEAR_ANGLE_MAX,
+        'default': SHEAR_ANGLE_DEFAULT,
+        'step': SHEAR_ANGLE_STEP,
+        'unit': SHEAR_UNIT,
+        'description': SHEAR_DESCRIPTION
+    }
+
+def get_rotation_parameters():
+    """Get rotation parameters for UI"""
+    return {
+        'min': ROTATION_ANGLE_MIN,
+        'max': ROTATION_ANGLE_MAX,
+        'default': ROTATION_ANGLE_DEFAULT,
+        'step': ROTATION_ANGLE_STEP,
+        'unit': ROTATION_UNIT,
+        'description': ROTATION_DESCRIPTION
+    }
+
+def get_saturation_parameters():
+    """Get saturation parameters for UI"""
+    return {
+        'min': SATURATION_MIN,
+        'max': SATURATION_MAX,
+        'default': SATURATION_DEFAULT,
+        'step': SATURATION_STEP,
+        'unit': SATURATION_UNIT,
+        'description': SATURATION_DESCRIPTION
+    }
+
+def get_gamma_parameters():
+    """Get gamma parameters for UI"""
+    return {
+        'min': GAMMA_MIN,
+        'max': GAMMA_MAX,
+        'default': GAMMA_DEFAULT,
+        'step': GAMMA_STEP,
+        'unit': GAMMA_UNIT,
+        'description': GAMMA_DESCRIPTION
+    }
+
+def get_resize_parameters():
+    """Get resize parameters for UI"""
+    return {
+        'width_min': RESIZE_WIDTH_MIN,
+        'width_max': RESIZE_WIDTH_MAX,
+        'width_default': RESIZE_WIDTH_DEFAULT,
+        'height_min': RESIZE_HEIGHT_MIN,
+        'height_max': RESIZE_HEIGHT_MAX,
+        'height_default': RESIZE_HEIGHT_DEFAULT,
+        'unit': RESIZE_UNIT,
+        'description': RESIZE_DESCRIPTION
+    }
+
+# =====================================================================
 # TRANSFORMATION CATEGORIES
 # =====================================================================
 
@@ -319,93 +435,3 @@ ADVANCED_TRANSFORMATIONS = [
     'shear', 'hue', 'saturation', 'gamma'
 ]
 
-# =====================================================================
-# HELPER FUNCTIONS
-# =====================================================================
-
-def get_shear_parameters():
-    """Get shear transformation parameters"""
-    return {
-        'min': SHEAR_ANGLE_MIN,
-        'max': SHEAR_ANGLE_MAX,
-        'default': SHEAR_ANGLE_DEFAULT,
-        'step': SHEAR_ANGLE_STEP
-    }
-
-def get_rotation_parameters():
-    """Get rotation transformation parameters"""
-    return {
-        'min': ROTATION_ANGLE_MIN,
-        'max': ROTATION_ANGLE_MAX,
-        'default': ROTATION_ANGLE_DEFAULT,
-        'step': ROTATION_ANGLE_STEP
-    }
-
-def get_brightness_parameters():
-    """Get brightness transformation parameters"""
-    return {
-        'min': BRIGHTNESS_MIN,
-        'max': BRIGHTNESS_MAX,
-        'default': BRIGHTNESS_DEFAULT,
-        'step': BRIGHTNESS_STEP
-    }
-
-def get_contrast_parameters():
-    """Get contrast transformation parameters"""
-    return {
-        'min': CONTRAST_MIN,
-        'max': CONTRAST_MAX,
-        'default': CONTRAST_DEFAULT,
-        'step': CONTRAST_STEP
-    }
-
-def get_blur_parameters():
-    """Get blur transformation parameters"""
-    return {
-        'min': BLUR_RADIUS_MIN,
-        'max': BLUR_RADIUS_MAX,
-        'default': BLUR_RADIUS_DEFAULT,
-        'step': BLUR_RADIUS_STEP
-    }
-
-def get_hue_parameters():
-    """Get hue transformation parameters"""
-    return {
-        'min': HUE_SHIFT_MIN,
-        'max': HUE_SHIFT_MAX,
-        'default': HUE_SHIFT_DEFAULT,
-        'step': HUE_SHIFT_STEP
-    }
-
-def get_saturation_parameters():
-    """Get saturation transformation parameters"""
-    return {
-        'min': SATURATION_MIN,
-        'max': SATURATION_MAX,
-        'default': SATURATION_DEFAULT,
-        'step': SATURATION_STEP
-    }
-
-def get_gamma_parameters():
-    """Get gamma transformation parameters"""
-    return {
-        'min': GAMMA_MIN,
-        'max': GAMMA_MAX,
-        'default': GAMMA_DEFAULT,
-        'step': GAMMA_STEP
-    }
-
-def get_resize_parameters():
-    """Get resize transformation parameters"""
-    return {
-        'width': {
-            'min': RESIZE_WIDTH_MIN,
-            'max': RESIZE_WIDTH_MAX,
-            'default': RESIZE_WIDTH_DEFAULT
-        },
-        'height': {
-            'min': RESIZE_HEIGHT_MIN,
-            'max': RESIZE_HEIGHT_MAX,
-            'default': RESIZE_HEIGHT_DEFAULT
-        }
-    }

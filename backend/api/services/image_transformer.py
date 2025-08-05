@@ -24,7 +24,7 @@ from core.transformation_config import (
     get_brightness_parameters, get_contrast_parameters,
     get_blur_parameters, get_hue_parameters,
     get_saturation_parameters, get_gamma_parameters,
-    get_resize_parameters
+    get_resize_parameters, get_noise_parameters
 )
 
 logger = logging.getLogger(__name__)
@@ -45,6 +45,7 @@ class ImageTransformer:
         self._get_saturation_params = get_saturation_parameters
         self._get_gamma_params = get_gamma_parameters
         self._get_resize_params = get_resize_parameters
+        self._get_noise_params = get_noise_parameters
         self.transformation_methods = {
             # Basic transformations
             'resize': self._apply_resize,
@@ -231,14 +232,14 @@ class ImageTransformer:
                 'name': 'Brightness',
                 'category': 'basic',
                 'parameters': {
-                    'adjustment': {
-                        'type': 'float', 
+                    'percentage': {
+                        'type': 'int', 
                         'min': self._get_brightness_params()['min'], 
                         'max': self._get_brightness_params()['max'], 
                         'default': self._get_brightness_params()['default'],
-                        'unit': 'factor',
+                        'unit': self._get_brightness_params()['unit'],
                         'step': self._get_brightness_params()['step'],
-                        'description': 'Brightness adjustment factor (1.0 = normal)'
+                        'description': self._get_brightness_params()['description']
                     }
                 }
             },
@@ -246,14 +247,14 @@ class ImageTransformer:
                 'name': 'Contrast',
                 'category': 'basic',
                 'parameters': {
-                    'adjustment': {
-                        'type': 'float', 
+                    'percentage': {
+                        'type': 'int', 
                         'min': self._get_contrast_params()['min'], 
                         'max': self._get_contrast_params()['max'], 
                         'default': self._get_contrast_params()['default'],
-                        'unit': 'factor',
+                        'unit': self._get_contrast_params()['unit'],
                         'step': self._get_contrast_params()['step'],
-                        'description': 'Contrast adjustment factor (1.0 = normal)'
+                        'description': self._get_contrast_params()['description']
                     }
                 }
             },
@@ -699,30 +700,32 @@ class ImageTransformer:
     
     def _apply_brightness(self, image: Image.Image, params: Dict[str, Any]) -> Image.Image:
         """Adjust image brightness"""
-        adjustment = params.get('adjustment', params.get('factor', 1.0))  # Support both old and new parameter names
+        # Get percentage value (new format) or fallback to old formats
+        percentage = params.get('percentage', params.get('adjustment', params.get('factor', 0)))
         
-        # Convert adjustment to factor if needed
-        if isinstance(adjustment, int) and -50 <= adjustment <= 50:
-            # New percentage format (-50 to +50)
-            factor = 1.0 + (adjustment / 100.0)
+        # Convert percentage to factor
+        if isinstance(percentage, int) and -50 <= percentage <= 50:
+            # New percentage format (-50 to +50) -> factor (0.5 to 1.5)
+            factor = 1.0 + (percentage / 100.0)
         else:
-            # Old factor format (0.8-1.2) for backwards compatibility
-            factor = adjustment
+            # Old factor format for backwards compatibility
+            factor = percentage if percentage > 0 else 1.0
             
         enhancer = ImageEnhance.Brightness(image)
         return enhancer.enhance(factor)
     
     def _apply_contrast(self, image: Image.Image, params: Dict[str, Any]) -> Image.Image:
         """Adjust image contrast"""
-        adjustment = params.get('adjustment', params.get('factor', 1.0))  # Support both old and new parameter names
+        # Get percentage value (new format) or fallback to old formats
+        percentage = params.get('percentage', params.get('adjustment', params.get('factor', 0)))
         
-        # Convert adjustment to factor if needed
-        if isinstance(adjustment, int) and -50 <= adjustment <= 50:
-            # New percentage format (-50 to +50)
-            factor = 1.0 + (adjustment / 100.0)
+        # Convert percentage to factor
+        if isinstance(percentage, int) and -50 <= percentage <= 50:
+            # New percentage format (-50 to +50) -> factor (0.5 to 1.5)
+            factor = 1.0 + (percentage / 100.0)
         else:
-            # Old factor format (0.8-1.2) for backwards compatibility
-            factor = adjustment
+            # Old factor format for backwards compatibility
+            factor = percentage if percentage > 0 else 1.0
             
         enhancer = ImageEnhance.Contrast(image)
         return enhancer.enhance(factor)
