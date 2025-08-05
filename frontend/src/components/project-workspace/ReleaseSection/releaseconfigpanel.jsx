@@ -53,7 +53,7 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
       if (!currentReleaseVersion) return;
       
       try {
-        const response = await fetch(`http://localhost:12000/api/v1/release-config/${currentReleaseVersion}`);
+        const response = await fetch(`http://localhost:12000/api/v1/image-transformations/release-config/${currentReleaseVersion}`);
         const data = await response.json();
         
         if (data.success) {
@@ -170,7 +170,7 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
     try {
       console.log(`Updating images per original for "${currentReleaseVersion}" to ${value}`);
       
-      const response = await fetch('http://localhost:12000/api/v1/update-user-selected-images', {
+      const response = await fetch('http://localhost:12000/api/v1/image-transformations/update-user-selected-images', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
