@@ -6,6 +6,7 @@ import { imageTransformationsAPI } from '../../../services/api';
 const { Option } = Select;
 
 const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selectedDatasets = [], currentReleaseVersion, onReleaseVersionChange }) => {
+  console.log('🔥 UPDATED COMPONENT LOADED - VERSION 2.0 🔥');
   const [form] = Form.useForm();
   const [previewData, setPreviewData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -382,8 +383,8 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
               <InputNumber 
                 min={1} 
                 max={maxCombinations} 
-                style={{ width: '100%' }}
-                placeholder="Enter number"
+                style={{ width: '100%', backgroundColor: '#f0f8ff' }}
+                placeholder="🔢 Enter number (UPDATED VERSION)"
                 onPressEnter={handleImagesPerOriginalKeyPress}
                 onBlur={handleImagesPerOriginalBlur}
               />
