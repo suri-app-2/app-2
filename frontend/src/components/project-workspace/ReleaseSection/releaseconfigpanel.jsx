@@ -50,34 +50,51 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
   // Fetch combination count and user selection for current release version
   useEffect(() => {
     const fetchReleaseConfig = async () => {
-      if (!currentReleaseVersion) return;
+      console.log('🔍 DEBUG: fetchReleaseConfig called with currentReleaseVersion:', currentReleaseVersion);
+      
+      if (!currentReleaseVersion) {
+        console.log('❌ No currentReleaseVersion, skipping fetch');
+        return;
+      }
       
       try {
-        const response = await fetch(`http://localhost:12000/api/v1/image-transformations/release-config/${currentReleaseVersion}`);
+        const url = `http://localhost:12000/api/v1/image-transformations/release-config/${currentReleaseVersion}`;
+        console.log('🌐 Fetching from URL:', url);
+        
+        const response = await fetch(url);
+        console.log('📡 Response status:', response.status);
+        
         const data = await response.json();
+        console.log('📊 Response data:', data);
         
         if (data.success) {
+          console.log('✅ Setting maxCombinations to:', data.max_limit);
           setMaxCombinations(data.max_limit);
           // Set current user selection in form if it exists
           if (data.current_user_selection) {
             form.setFieldsValue({ multiplier: data.current_user_selection });
           }
-          console.log(`Release config for ${currentReleaseVersion}: max=${data.max_limit}, current=${data.current_user_selection}`);
+          console.log(`✅ Release config for ${currentReleaseVersion}: max=${data.max_limit}, current=${data.current_user_selection}`);
+        } else {
+          console.log('❌ API returned success=false:', data);
         }
       } catch (error) {
-        console.error('Failed to fetch release config:', error);
+        console.error('❌ Failed to fetch release config:', error);
         // Fallback to old API if new one fails
         try {
+          console.log('🔄 Trying fallback API...');
           const response = await fetch('http://localhost:12000/api/v1/releases/versions?status=PENDING');
           const data = await response.json();
+          console.log('📊 Fallback data:', data);
           if (data.success && data.versions) {
             const versionData = data.versions.find(v => v.version === currentReleaseVersion);
             if (versionData && versionData.max_combinations) {
+              console.log('✅ Fallback: Setting maxCombinations to:', versionData.max_combinations);
               setMaxCombinations(versionData.max_combinations);
             }
           }
         } catch (fallbackError) {
-          console.error('Fallback API also failed:', fallbackError);
+          console.error('❌ Fallback API also failed:', fallbackError);
         }
       }
     };
@@ -163,35 +180,61 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
 
   // Handle immediate update of images per original
   const handleImagesPerOriginalUpdate = async (value) => {
-    if (!currentReleaseVersion || !value || value < 1 || value > maxCombinations) {
+    console.log('🔍 DEBUG: handleImagesPerOriginalUpdate called with value:', value);
+    console.log('🔍 DEBUG: currentReleaseVersion:', currentReleaseVersion);
+    console.log('🔍 DEBUG: maxCombinations:', maxCombinations);
+    
+    if (!currentReleaseVersion) {
+      console.log('❌ No currentReleaseVersion, aborting update');
+      message.error('No release version selected');
+      return;
+    }
+    
+    if (!value || value < 1) {
+      console.log('❌ Invalid value (too small):', value);
+      message.error('Value must be at least 1');
+      return;
+    }
+    
+    if (value > maxCombinations) {
+      console.log('❌ Invalid value (too large):', value, 'max:', maxCombinations);
+      message.error(`Value cannot exceed ${maxCombinations}`);
       return;
     }
 
     try {
-      console.log(`Updating images per original for "${currentReleaseVersion}" to ${value}`);
+      console.log(`🚀 Updating images per original for "${currentReleaseVersion}" to ${value}`);
       
-      const response = await fetch('http://localhost:12000/api/v1/image-transformations/update-user-selected-images', {
+      const url = 'http://localhost:12000/api/v1/image-transformations/update-user-selected-images';
+      const payload = {
+        release_version: currentReleaseVersion,
+        user_selected_images: value
+      };
+      
+      console.log('🌐 POST URL:', url);
+      console.log('📦 Payload:', payload);
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          release_version: currentReleaseVersion,
-          user_selected_images: value
-        })
+        body: JSON.stringify(payload)
       });
 
+      console.log('📡 Response status:', response.status);
       const result = await response.json();
+      console.log('📊 Response data:', result);
       
       if (result.success) {
         message.success(`Images per Original updated to ${value}`);
-        console.log('Images per original update result:', result);
+        console.log('✅ Images per original update successful:', result);
       } else {
         throw new Error(result.message || 'Update failed');
       }
     } catch (error) {
-      console.error('Failed to update images per original:', error);
-      message.error('Failed to update Images per Original');
+      console.error('❌ Failed to update images per original:', error);
+      message.error('Failed to update Images per Original: ' + error.message);
     }
   };
 
