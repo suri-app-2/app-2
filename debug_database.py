@@ -276,6 +276,131 @@ class DatabaseDebugger:
             if labels:
                 print(f"      🏷️  Labels: {', '.join(labels)}")
 
+    def get_image_transformations_detailed(self):
+        """Get detailed information about image transformations and dual-value system"""
+        cursor = self.conn.cursor()
+        
+        self.print_header("IMAGE TRANSFORMATIONS & DUAL-VALUE SYSTEM")
+        
+        # Check if image_transformations table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='image_transformations';")
+        table_exists = cursor.fetchone()
+        
+        if not table_exists:
+            print("❌ image_transformations table not found in database")
+            return
+        
+        # Get all transformations
+        cursor.execute("""
+            SELECT * FROM image_transformations 
+            ORDER BY release_version, order_index, transformation_type
+        """)
+        transformations = cursor.fetchall()
+        
+        if not transformations:
+            print("❌ No image transformations found in database")
+            return
+        
+        current_release = None
+        for trans in transformations:
+            if current_release != trans['release_version']:
+                current_release = trans['release_version']
+                self.print_subheader(f"RELEASE VERSION: {current_release}")
+                
+                # Get release statistics
+                cursor.execute("""
+                    SELECT 
+                        COUNT(*) as total_transformations,
+                        COUNT(CASE WHEN is_dual_value = 1 THEN 1 END) as dual_value_count,
+                        COUNT(CASE WHEN is_enabled = 1 THEN 1 END) as enabled_count,
+                        MAX(transformation_combination_count) as max_images,
+                        MAX(user_selected_images_per_original) as user_selected
+                    FROM image_transformations 
+                    WHERE release_version = ?
+                """, (current_release,))
+                stats = cursor.fetchone()
+                
+                print(f"   📊 Release Statistics:")
+                print(f"      Total Transformations: {stats['total_transformations']}")
+                print(f"      Dual-Value Tools: {stats['dual_value_count']}")
+                print(f"      Enabled Tools: {stats['enabled_count']}")
+                print(f"      Max Images per Original: {stats['max_images'] if stats['max_images'] else 'Not calculated'}")
+                print(f"      User Selected Images: {stats['user_selected'] if stats['user_selected'] else 'Not set'}")
+            
+            print(f"\n   🔧 TRANSFORMATION: {trans['transformation_type']} (ID: {trans['id'][:8]}...)")
+            print(f"      📝 Category: {trans['category'] if trans['category'] else 'N/A'}")
+            print(f"      🔢 Order Index: {trans['order_index']}")
+            print(f"      ✅ Enabled: {'Yes' if trans['is_enabled'] else 'No'}")
+            print(f"      🔄 Status: {trans['status'] if trans['status'] else 'N/A'}")
+            
+            # Dual-value system information
+            print(f"      🎯 Dual-Value System:")
+            print(f"         Is Dual-Value: {'Yes' if trans['is_dual_value'] else 'No'}")
+            print(f"         Dual-Value Enabled: {'Yes' if trans['dual_value_enabled'] else 'No'}")
+            
+            # Parameters
+            if trans['parameters']:
+                try:
+                    params = json.loads(trans['parameters']) if isinstance(trans['parameters'], str) else trans['parameters']
+                    print(f"      ⚙️  Parameters: {json.dumps(params, indent=10)}")
+                except:
+                    print(f"      ⚙️  Parameters: {trans['parameters']}")
+            
+            # Dual-value parameters
+            if trans['dual_value_parameters']:
+                try:
+                    dual_params = json.loads(trans['dual_value_parameters']) if isinstance(trans['dual_value_parameters'], str) else trans['dual_value_parameters']
+                    print(f"      🎭 Dual-Value Parameters: {json.dumps(dual_params, indent=10)}")
+                except:
+                    print(f"      🎭 Dual-Value Parameters: {trans['dual_value_parameters']}")
+            
+            # Parameter ranges
+            if trans['parameter_ranges']:
+                try:
+                    ranges = json.loads(trans['parameter_ranges']) if isinstance(trans['parameter_ranges'], str) else trans['parameter_ranges']
+                    print(f"      📊 Parameter Ranges: {json.dumps(ranges, indent=10)}")
+                except:
+                    print(f"      📊 Parameter Ranges: {trans['parameter_ranges']}")
+            
+            # Range enabled params
+            if trans['range_enabled_params']:
+                try:
+                    range_params = json.loads(trans['range_enabled_params']) if isinstance(trans['range_enabled_params'], str) else trans['range_enabled_params']
+                    print(f"      🎛️  Range Enabled Params: {json.dumps(range_params, indent=10)}")
+                except:
+                    print(f"      🎛️  Range Enabled Params: {trans['range_enabled_params']}")
+            
+            # New columns information
+            print(f"      📈 Combination Count: {trans['transformation_combination_count'] if trans['transformation_combination_count'] else 'Not calculated'}")
+            print(f"      👤 User Selected Images: {trans['user_selected_images_per_original'] if trans['user_selected_images_per_original'] else 'Not set'}")
+            
+            print(f"      📅 Created: {trans['created_at']}")
+            print(f"      🔄 Release ID: {trans['release_id'] if trans['release_id'] else 'N/A'}")
+        
+        # Check for auto-generated values in dual_value_parameters
+        self.print_subheader("AUTO-GENERATED VALUES CHECK")
+        cursor.execute("""
+            SELECT transformation_type, dual_value_parameters 
+            FROM image_transformations 
+            WHERE dual_value_parameters IS NOT NULL 
+            AND dual_value_parameters != 'null'
+            AND dual_value_parameters != '{}'
+        """)
+        auto_gen_data = cursor.fetchall()
+        
+        if auto_gen_data:
+            print("✅ Found transformations with dual-value parameters (auto-generated values):")
+            for row in auto_gen_data:
+                print(f"   🔧 {row['transformation_type']}:")
+                try:
+                    params = json.loads(row['dual_value_parameters']) if isinstance(row['dual_value_parameters'], str) else row['dual_value_parameters']
+                    print(f"      Auto-gen data: {json.dumps(params, indent=8)}")
+                except:
+                    print(f"      Raw data: {row['dual_value_parameters']}")
+        else:
+            print("❌ No auto-generated values found in dual_value_parameters column")
+            print("   This might be normal if auto-generation happens at runtime")
+
     def get_detailed_annotations(self):
         """Get detailed view of all annotations with coordinates"""
         cursor = self.conn.cursor()
@@ -1016,6 +1141,7 @@ class DatabaseDebugger:
             self.get_labels_table()  # Add labels table analysis
             self.get_releases_table()  # Add releases table analysis
             self.get_image_transformations_table()  # Add image transformations table analysis
+            self.get_image_transformations_detailed()  # Add detailed dual-value transformations analysis
             self.get_transformation_release_relationships()  # Show transformation-release relationships
             self.get_images_detailed()
             self.get_annotations_summary()

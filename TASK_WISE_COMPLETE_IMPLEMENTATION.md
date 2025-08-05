@@ -98,20 +98,88 @@ python main.py  # Backend starts successfully on port 12000
 - ✅ Implemented priority order logic (User → Auto → Random)
 - ✅ Added API endpoints for UI integration
 
-### **🐛 CRITICAL BUG IDENTIFIED (Task 3 Bug Fix Required):**
-**Issue:** Database `transformation_combination_count` column saves incorrect value (100) instead of calculated max (15)
-**Root Cause:** `update_transformation_combination_count()` function uses hardcoded value instead of API calculation result
-**Status:** 🔄 Bug documented, fix in progress
-**Branch:** `feature/database-max-count-fix`
+### **🐛 CRITICAL BUG FIXED:**
+**Issue:** Database `transformation_combination_count` column saves incorrect value (NULL/100) instead of calculated max (8)
+**Root Cause:** `update_transformation_combination_count()` function was looking for wrong key in calculation result
+**Status:** ✅ **FIXED** - Bug resolved and tested
 **Files Affected:** `/backend/api/routes/image_transformations.py`
 
 **Bug Details:**
-- ✅ API `/calculate-max-images` returns correct values (min:6, max:15)
+- ✅ API `/calculate-max-images` returns correct values (min:4, max:8)
 - ✅ Database column exists and can be updated
-- ❌ Update function saves hardcoded 100 instead of calculated 15
-- ❌ Frontend "Images per Original" field shows wrong maximum
+- ✅ **FIXED:** Update function now correctly extracts `max` value from calculation result
+- ✅ Database now shows correct calculated value (8)
 
-**Fix Required:** Update `update_transformation_combination_count()` to use `calculate_max_images_for_transformations()` result
+**Fix Applied:** Changed `result.get('max_images_per_original', 100)` to `result.get('max', 100)` in line 50
+
+**Testing Results:**
+- ✅ Calculation function returns: `{'min': 4, 'max': 8, 'has_dual_value': True}`
+- ✅ Database update function now correctly saves max value (8)
+- ✅ Both transformations in `test_dual_value_v1` now show `transformation_combination_count = 8`
+
+### **🎯 NEW STRATEGY: UI Enhancement for Images per Original**
+**Requirement:** Professional input field with validation for user image selection
+
+**Database Strategy:**
+- `transformation_combination_count` = Definition/Max limit (calculated automatically, like 15)
+- `user_selected_images_per_original` = NEW column for user's actual choice (like 8)
+
+**UI Strategy:**
+```
+Images per Original: [    ] Max: 15
+                     ↑input ↑note
+```
+- **Input Field**: Clean empty field where user types desired number
+- **Max Display**: Shows calculated limit beside input (not inside)
+- **Real-time Validation**: If user types > max, show error immediately
+- **Database Update**: User's selection saves to new `user_selected_images_per_original` column
+
+**Implementation Flow:**
+1. User selects transformations → Click "Continue"
+2. App calculates max (15) → Updates `transformation_combination_count`
+3. Release Configuration shows input field with "Max: 15" note
+4. User types desired number (8) → Validates ≤ 15
+5. Saves user's choice (8) to `user_selected_images_per_original`
+
+**Implementation Progress:**
+- ✅ **Database Schema**: Added `user_selected_images_per_original` column to `image_transformations` table
+- ✅ **Backend API**: Added new endpoints for user selection management:
+  - `POST /update-user-selected-images` - Update user's choice with validation
+  - `GET /release-config/{release_version}` - Get max limit and current user selection
+- ✅ **Validation Logic**: Real-time validation ensures user input ≤ calculated maximum
+- ✅ **Database Migration**: Successfully applied column addition migration
+- ✅ **Frontend UI**: Changed dropdown to input field with validation (COMPLETED)
+
+**Backend Testing Results:**
+- ✅ Database column added successfully
+- ✅ API endpoints working correctly
+- ✅ Validation logic prevents invalid selections (10 > 8 rejected)
+- ✅ User selection (5) saved correctly for test_dual_value_v1
+- ✅ Max calculation (8) and user choice (5) both stored properly
+
+**Frontend UI Changes Made:**
+- ✅ **File Modified**: `/frontend/src/components/project-workspace/ReleaseSection/releaseconfigpanel.jsx`
+- ✅ **Lines Changed**: 257-283 (Form.Item for "Images per Original")
+- ✅ **UI Enhancement**: 
+  - **Before**: `InputNumber` with "X images" formatter and tooltip
+  - **After**: Clean `InputNumber` with "Max: X" displayed beside label
+- ✅ **Validation Enhanced**: Added real-time validation with custom error messages
+- ✅ **Professional Display**: "Images per Original Max: 8" layout implemented
+
+**UI Implementation Details:**
+```jsx
+// NEW IMPLEMENTATION:
+label={
+  <span>
+    Images per Original
+    <span style={{ marginLeft: '10px', color: '#666', fontWeight: 'normal' }}>
+      Max: {maxCombinations}
+    </span>
+  </span>
+}
+```
+
+**TASK 3 STATUS: ✅ COMPLETED**
 
 ### **Files modified:**
 - ✅ `/backend/core/transformation_config.py` - Added dual-value tool definitions and auto-generation logic

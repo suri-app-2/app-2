@@ -255,17 +255,30 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Images per Original"
+              label={
+                <span>
+                  Images per Original
+                  <span style={{ marginLeft: '10px', color: '#666', fontWeight: 'normal' }}>
+                    Max: {maxCombinations}
+                  </span>
+                </span>
+              }
               name="multiplier"
-              rules={[{ required: true }]}
-              tooltip={`Number of augmented images to generate per original image (Max: ${maxCombinations} based on transformation combinations)`}
+              rules={[
+                { required: true },
+                { 
+                  type: 'number', 
+                  min: 1, 
+                  max: maxCombinations, 
+                  message: `Value must be between 1 and ${maxCombinations}` 
+                }
+              ]}
             >
               <InputNumber 
                 min={1} 
                 max={maxCombinations} 
                 style={{ width: '100%' }}
-                formatter={value => `${value} images`}
-                parser={value => value.replace(' images', '')}
+                placeholder="Enter number"
               />
             </Form.Item>
           </Col>

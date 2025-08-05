@@ -47,7 +47,7 @@ def update_transformation_combination_count(db: Session, release_version: str):
 
         # Calculate max images using our existing function
         result = calculate_max_images_per_original(transformation_list)
-        max_images = result.get('max_images_per_original', 100)
+        max_images = result.get('max', 100)
 
         # Update all transformations in this release version with the calculated count
         db.query(ImageTransformation).filter(
@@ -717,3 +717,144 @@ def update_combination_count_endpoint(
     except Exception as e:
         logger.error(f"Error updating combination count: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to update combination count: {str(e)}")
+
+
+@router.post("/update-user-selected-images")
+def update_user_selected_images(
+    request: dict,
+    db: Session = Depends(get_db)
+):
+    """
+    Update user selected images per original for Release Configuration UI
+    Validates that user selection doesn't exceed maximum calculated value
+    """
+    try:
+        release_version = request.get("release_version")
+        user_selected_count = request.get("user_selected_count")
+        
+        if not release_version:
+            raise HTTPException(status_code=400, detail="release_version is required")
+        
+        if user_selected_count is None:
+            raise HTTPException(status_code=400, detail="user_selected_count is required")
+        
+        if not isinstance(user_selected_count, int) or user_selected_count < 1:
+            raise HTTPException(status_code=400, detail="user_selected_count must be a positive integer")
+        
+        # Get transformations for this release version
+        transformations = db.query(ImageTransformation).filter(
+            ImageTransformation.release_version == release_version,
+            ImageTransformation.is_enabled == True
+        ).all()
+        
+        if not transformations:
+            raise HTTPException(status_code=404, detail=f"No transformations found for release version {release_version}")
+        
+        # Get the maximum allowed count from the first transformation
+        max_allowed = transformations[0].transformation_combination_count
+        
+        if max_allowed is None:
+            # Calculate max if not set
+            transformation_list = []
+            for t in transformations:
+                transformation_list.append({
+                    "transformation_type": t.transformation_type,
+                    "enabled": t.is_enabled,
+                    "is_dual_value": t.is_dual_value,
+                    "parameters": t.parameters
+                })
+            
+            result = calculate_max_images_per_original(transformation_list)
+            max_allowed = result.get('max', 100)
+            
+            # Update the max count in database
+            update_transformation_combination_count(db, release_version)
+        
+        # Validate user selection doesn't exceed maximum
+        if user_selected_count > max_allowed:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"User selected count ({user_selected_count}) cannot exceed maximum allowed ({max_allowed})"
+            )
+        
+        # Update all transformations in this release version with user selection
+        updated_count = db.query(ImageTransformation).filter(
+            ImageTransformation.release_version == release_version
+        ).update({
+            "user_selected_images_per_original": user_selected_count
+        })
+        
+        db.commit()
+        
+        logger.info(f"Updated user selected images for release {release_version}: {user_selected_count} (max: {max_allowed})")
+        
+        return {
+            "success": True,
+            "release_version": release_version,
+            "user_selected_count": user_selected_count,
+            "max_allowed_count": max_allowed,
+            "updated_transformations": updated_count
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error updating user selected images: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to update user selected images: {str(e)}")
+
+
+@router.get("/release-config/{release_version}")
+def get_release_config(
+    release_version: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Get release configuration data for UI display
+    Returns max allowed images and current user selection
+    """
+    try:
+        # Get transformations for this release version
+        transformations = db.query(ImageTransformation).filter(
+            ImageTransformation.release_version == release_version,
+            ImageTransformation.is_enabled == True
+        ).all()
+        
+        if not transformations:
+            raise HTTPException(status_code=404, detail=f"No transformations found for release version {release_version}")
+        
+        # Get configuration from first transformation (all should have same values)
+        first_transformation = transformations[0]
+        max_allowed = first_transformation.transformation_combination_count
+        user_selected = first_transformation.user_selected_images_per_original
+        
+        # Calculate max if not set
+        if max_allowed is None:
+            transformation_list = []
+            for t in transformations:
+                transformation_list.append({
+                    "transformation_type": t.transformation_type,
+                    "enabled": t.is_enabled,
+                    "is_dual_value": t.is_dual_value,
+                    "parameters": t.parameters
+                })
+            
+            result = calculate_max_images_per_original(transformation_list)
+            max_allowed = result.get('max', 100)
+            
+            # Update the max count in database
+            update_transformation_combination_count(db, release_version)
+        
+        return {
+            "release_version": release_version,
+            "max_images_per_original": max_allowed,
+            "user_selected_images_per_original": user_selected,
+            "total_transformations": len(transformations),
+            "transformation_types": [t.transformation_type for t in transformations]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting release config for version {release_version}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get release config: {str(e)}")

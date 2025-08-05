@@ -251,6 +251,9 @@ class ImageTransformation(Base):
     # NEW: Maximum possible transformation combinations for this release version
     transformation_combination_count = Column(Integer, nullable=True)  # 2^n - 1 where n = enabled transformations
     
+    # NEW: User-selected images per original (for Release Configuration UI)
+    user_selected_images_per_original = Column(Integer, nullable=True)  # User's choice (must be <= transformation_combination_count)
+    
     # NEW: Dual-value system support
     is_dual_value = Column(Boolean, default=False)            # True for dual-value transformations
     dual_value_parameters = Column(JSON, nullable=True)       # {"angle": {"user_value": 45, "auto_value": -45}}
