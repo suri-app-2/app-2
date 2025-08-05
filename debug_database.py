@@ -325,7 +325,7 @@ class DatabaseDebugger:
                 print(f"      Dual-Value Tools: {stats['dual_value_count']}")
                 print(f"      Enabled Tools: {stats['enabled_count']}")
                 print(f"      Max Images per Original: {stats['max_images'] if stats['max_images'] else 'Not calculated'}")
-                print(f"      User Selected Images: {stats['user_selected'] if stats['user_selected'] else 'Not set'}")
+                print(f"      Images per Original (User Choice): {stats['user_selected'] if stats['user_selected'] else 'Not set'}")
             
             print(f"\n   🔧 TRANSFORMATION: {trans['transformation_type']} (ID: {trans['id'][:8]}...)")
             print(f"      📝 Category: {trans['category'] if trans['category'] else 'N/A'}")
@@ -372,7 +372,7 @@ class DatabaseDebugger:
             
             # New columns information
             print(f"      📈 Combination Count: {trans['transformation_combination_count'] if trans['transformation_combination_count'] else 'Not calculated'}")
-            print(f"      👤 User Selected Images: {trans['user_selected_images_per_original'] if trans['user_selected_images_per_original'] else 'Not set'}")
+            print(f"      👤 Images per Original (User Choice): {trans['user_selected_images_per_original'] if trans['user_selected_images_per_original'] else 'Not set'}")
             
             print(f"      📅 Created: {trans['created_at']}")
             print(f"      🔄 Release ID: {trans['release_id'] if trans['release_id'] else 'N/A'}")
