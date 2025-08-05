@@ -58,7 +58,7 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
       }
       
       try {
-        const url = `http://localhost:12000/api/v1/image-transformations/release-config/${currentReleaseVersion}`;
+        const url = `http://localhost:12000/api/image-transformations/release-config/${currentReleaseVersion}`;
         console.log('🌐 Fetching from URL:', url);
         
         const response = await fetch(url);
@@ -205,7 +205,7 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
     try {
       console.log(`🚀 Updating images per original for "${currentReleaseVersion}" to ${value}`);
       
-      const url = 'http://localhost:12000/api/v1/image-transformations/update-user-selected-images';
+      const url = 'http://localhost:12000/api/image-transformations/update-user-selected-images';
       const payload = {
         release_version: currentReleaseVersion,
         user_selected_images: value
