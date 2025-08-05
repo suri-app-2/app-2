@@ -227,7 +227,7 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
       const result = await response.json();
       console.log('📊 Response data:', result);
       
-      if (result.message && result.message.includes('Successfully updated')) {
+      if (result.success === true) {
         message.success(`Images per Original updated to ${value}`);
         console.log('✅ Images per original update successful:', result);
       } else {
