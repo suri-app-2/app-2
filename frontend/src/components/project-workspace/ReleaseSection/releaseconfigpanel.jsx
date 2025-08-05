@@ -230,6 +230,10 @@ const ReleaseConfigPanel = ({ onGenerate, onPreview, transformations = [], selec
       if (result.success === true) {
         message.success(`Images per Original updated to ${value}`);
         console.log('✅ Images per original update successful:', result);
+        
+        // 🔄 BIDIRECTIONAL UPDATE: Update the UI form field with the saved value
+        form.setFieldsValue({ multiplier: result.user_selected_count });
+        console.log('🔄 UI updated with saved value:', result.user_selected_count);
       } else {
         throw new Error(result.detail || result.message || 'Update failed');
       }
